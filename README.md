@@ -1,0 +1,1 @@
+Quick POC strapping up Spring Integration XML-based config from a stand-alone Spring Boot application.
