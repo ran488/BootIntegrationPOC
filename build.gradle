@@ -1,0 +1,77 @@
+buildscript {
+	repositories { mavenCentral() }
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.7.RELEASE")
+		classpath('se.transmode.gradle:gradle-docker:1.2')
+	}
+}
+
+group = 'springio'
+
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: 'docker'
+ 
+
+
+task buildDocker(type: Docker, dependsOn: build) {
+	push = true
+	applicationName = jar.baseName
+	dockerfile = file('src/main/docker/Dockerfile')
+	doFirst {
+		copy {
+			from jar
+			into stageDir
+		}
+	}
+}
+
+project.ext {
+	// Depenendency versions for those with multiple line items
+	spring_core_version = '4.1.0.RELEASE'
+	spring_integration_version = '4.0.4.RELEASE'
+	spring_batch_version = '3.0.1.RELEASE'
+}
+
+
+jar {
+	baseName = 'boot-integration'
+	version =  '0'
+}
+
+repositories { mavenCentral() }
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+	compile "org.springframework.boot:spring-boot-starter-integration"
+	
+//	compile "org.springframework:spring-core:${spring_core_version}"
+//	compile "org.springframework:spring-aop:${spring_core_version}"
+//	compile "org.springframework:spring-aspects:${spring_core_version}"
+//	compile "org.springframework:spring-context:${spring_core_version}"
+//	compile "org.springframework:spring-context-support:${spring_core_version}"
+//	compile "org.springframework:spring-web:${spring_core_version}"
+//	compile "org.springframework:spring-tx:${spring_core_version}"
+//	compile "org.springframework:spring-test:${spring_core_version}"
+//	compile "org.springframework:spring-jdbc:${spring_core_version}"
+//	compile "org.springframework:spring-messaging:${spring_core_version}"
+//	compile "org.springframework.integration:spring-integration-core:${spring_integration_version}"
+//	compile "org.springframework.integration:spring-integration-sftp:${spring_integration_version}"
+//	compile "org.springframework.integration:spring-integration-http:${spring_integration_version}"
+//	compile "org.springframework.integration:spring-integration-file:${spring_integration_version}"
+//	compile "org.springframework.integration:spring-integration-mail:${spring_integration_version}"
+//	compile "org.springframework.integration:spring-integration-mongodb:${spring_integration_version}"
+//	compile "org.springframework.batch:spring-batch-infrastructure:${spring_batch_version}"
+//	compile 'org.springframework.data:spring-data-mongodb:1.8.0.RELEASE'
+//	compile 'org.springframework.data:spring-data-oracle:1.0.0.RELEASE'
+//	compile 'org.mongodb:mongo-java-driver:3.0.2'
+
+	testCompile"org.springframework.boot:spring-boot-starter-test"
+}
+
+task wrapper(type: Wrapper) { gradleVersion = '2.3' }

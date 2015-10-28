@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-sftp="http://www.springframework.org/schema/integration/sftp"
+	xmlns:int-file="http://www.springframework.org/schema/integration/file"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:int-mongodb="http://www.springframework.org/schema/integration/mongodb"
+	xmlns:int-mail="http://www.springframework.org/schema/integration/mail"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xsi:schemaLocation="http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file-4.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.1.xsd
+		http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/integration/sftp http://www.springframework.org/schema/integration/sftp/spring-integration-sftp.xsd 
+		http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd 
+		http://www.springframework.org/schema/integration/mongodb http://www.springframework.org/schema/integration/mongodb/spring-integration-mongodb-4.0.xsd
+		http://www.springframework.org/schema/integration/mail
+    	http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd">
+
+
+	<!-- add tracking history to Header of each component the Message passes 
+		through -->
+	<int:message-history tracked-components="*" />
+
+	<int:inbound-channel-adapter channel="requestChannel" expression="''">
+		<int:poller fixed-delay="60000"></int:poller>
+	</int:inbound-channel-adapter>
+	
+	<int:channel id="responseChannel">
+		<int:queue capacity="10"/>
+	</int:channel>
+
+	<int:channel id="requestChannel"></int:channel>	
+
+	<int-http:outbound-gateway id="quakerHttpGateway"
+	    request-channel="requestChannel"
+	    url="http://localhost:8080/"
+	    http-method="GET"
+	    expected-response-type="java.lang.String"
+	    charset="UTF-8"
+	    reply-timeout="5000"
+	    reply-channel="responseChannel">	    
+	</int-http:outbound-gateway>
+	
+	<int:logging-channel-adapter id="messageLogger" log-full-message="true" channel="responseChannel" level="ERROR">
+		<int:poller fixed-delay="5000" ></int:poller>
+	</int:logging-channel-adapter>
+
+</beans>
